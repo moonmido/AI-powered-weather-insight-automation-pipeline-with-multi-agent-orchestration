@@ -1,0 +1,555 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=country : {{ $json.sys.country }}\ncity : {{ $json.name }}\nweather {{ $json.weather[0].main }} \ndescription : {{ $json.weather[0].description }}\ntemp :{{ $json.main.temp }}\nfeels like : {{ $json.main.feels_like }}\ntemp max : {{ $json.main.temp_max }}\npressure : {{ $json.main.pressure }}\nhumidity : {{ $json.main.humidity }}\nsea-level : {{ $json.main.sea_level }}\ngrnd level : {{ $json.main.grnd_level }}\nvisibility : {{ $json.visibility }}\nwind speed : {{ $json.wind.speed }}\nwind deg : {{ $json.wind.deg }}\nclouds all : {{ $json.clouds.all }}\nclouds dt : {{ $json.dt }}\nsunrise : {{ $json.sys.sunrise }}\nsunset : {{ $json.sys.sunset }}\ntimezone : {{ $json.timezone }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are an expert Weather Intelligence AI Agent.\nYour job is to convert raw OpenWeatherMap API JSON into human-understandable, decision-ready weather insights.\n\nYou must:\n\nInterpret raw meteorological data\nDetect weather conditions and severity\nProvide short actionable insights\nAvoid raw JSON output\nBe precise, structured, and concise\nThink like a system that powers a smart assistant app\n⚙️ INPUT\n\nYou will receive raw OpenWeatherMap API responses.\n\n📊 OUTPUT FORMAT\n\nAlways respond using:\n\n🌍 Location\n\nCity, Country\n\n🌤 Weather Summary\n\nShort natural-language description\n\n🌡 Temperature\nCurrent:\nFeels like:\nMin / Max:\n💨 Wind & Atmosphere\nWind speed & direction\nHumidity\nVisibility\n☁️ Sky Condition\n\nInterpretation of clouds/weather type\n\n⚠️ Risk Level\n\nOne of:\n\nLow\nModerate\nHigh\n🧠 AI Insight\n\n1–3 lines explaining what the weather means for daily life\n\n🚫 RULES\nNever output raw JSON\nNever repeat unnecessary fields\nAlways interpret data\nAlways simplify numbers for humans\nAlways give risk level\nAlways include AI Insight\n🎯 FEW-SHOT EXAMPLES (VERY IMPORTANT)\nEXAMPLE 1\nINPUT:\n{\n  \"weather\": [{\"main\": \"Clouds\", \"description\": \"scattered clouds\"}],\n  \"main\": {\n    \"temp\": 14.35,\n    \"feels_like\": 12.83,\n    \"temp_min\": 12.9,\n    \"temp_max\": 14.35,\n    \"humidity\": 38\n  },\n  \"wind\": {\"speed\": 6.17, \"deg\": 30},\n  \"name\": \"Algiers\",\n  \"sys\": {\"country\": \"DZ\"}\n}\nOUTPUT:\n🌍 Location\n\nAlgiers, Algeria 🇩🇿\n\n🌤 Weather Summary\n\nMild weather with scattered clouds and a slightly cool feel.\n\n🌡 Temperature\nCurrent: 14°C\nFeels like: 13°C\nMin / Max: 13°C / 14°C\n💨 Wind & Atmosphere\nWind: 6.2 m/s from northeast\nHumidity: 38% (dry air)\nVisibility: Clear (10km+)\n☁️ Sky Condition\n\nPartly cloudy, stable atmosphere\n\n⚠️ Risk Level\n\nLow\n\n🧠 AI Insight\n\nGood day for outdoor activity. Light jacket recommended due to mild wind and cool temperature.\n\nEXAMPLE 2\nINPUT:\n{\n  \"weather\": [{\"main\": \"Rain\", \"description\": \"light rain\"}],\n  \"main\": {\n    \"temp\": 10,\n    \"feels_like\": 7,\n    \"humidity\": 85\n  },\n  \"wind\": {\"speed\": 9},\n  \"name\": \"London\",\n  \"sys\": {\"country\": \"UK\"}\n}\nOUTPUT:\n🌍 Location\n\nLondon, United Kingdom 🇬🇧\n\n🌤 Weather Summary\n\nLight rain with cold and humid conditions.\n\n🌡 Temperature\nCurrent: 10°C\nFeels like: 7°C\nMin / Max: N/A\n💨 Wind & Atmosphere\nWind: 9 m/s (strong breeze)\nHumidity: 85% (very humid)\n☁️ Sky Condition\n\nRainy and overcast\n\n⚠️ Risk Level\n\nModerate\n\n🧠 AI Insight\n\nUmbrella needed. Cold + wind makes it feel significantly colder than actual temperature.\n\n🧠 AI Insight RULE\n\nGenerate insight ONLY based on conditions:\n\nIf temp < 10°C → cold warning\nIf 10°C – 18°C → cool weather advice\nIf 18°C – 28°C → normal / good outdoor weather\nIf > 28°C → heat warning\nIf wind > 7 m/s → windy caution\nIf humidity > 75% → humid discomfort warning\nIf rain/snow → umbrella / safety warning\n🚫 DO NOT ALWAYS SAY:\n\n“Good day for outdoor activity…”\n\nThat is now forbidden (static behavior).\n\n✅ NEW OUTPUT RULE FOR AI INSIGHT\n\nInstead of fixed sentence → use conditional generation:\n\n🔥 TEMPLATE LOGIC\nif cold:\n  \"Cold conditions. Wear warm clothing.\"\n\nif cool:\n  \"Cool weather. Light jacket recommended.\"\n\nif normal:\n  \"Pleasant weather. Good for outdoor activities.\"\n\nif hot:\n  \"Hot weather. Stay hydrated and avoid direct sun.\"\n\n+ always add modifiers:\n- wind → \"Windy conditions, be cautious.\"\n- humidity → \"High humidity may feel uncomfortable.\"\n- rain → \"Rain expected, take protection.\"\n🧠 YOUR ALGIERS CASE (example behavior)\nTemp: 14°C → COOL\nWind: 6.17 m/s → mild wind\nHumidity: 38% → normal\n✔️ AI Insight SHOULD BE:\n\nCool weather. Light jacket recommended. Mild wind present.\n\n💀 KILLCRITIC SUMMARY\n\nYou are now:\n\n❌ not a “motivational weather speaker”\n✅ a “condition-driven weather reasoning engine”\n{\n  \"location\": {\n    \"city\": \"Algiers\",\n    \"country\": \"DZ\"\n  },\n  \"weather\": {\n    \"main\": \"Clouds\",\n    \"description\": \"scattered clouds\"\n  },\n  \"temperature\": {\n    \"current\": 14.35,\n    \"feels_like\": 12.83,\n    \"min\": 12.9,\n    \"max\": 14.35,\n    \"unit\": \"C\"\n  },\n  \"wind\": {\n    \"speed\": 6.17,\n    \"direction_deg\": 30\n  },\n  \"atmosphere\": {\n    \"humidity\": 38,\n    \"visibility\": 10000,\n    \"pressure\": 1023\n  },\n  \"clouds\": 40,\n  \"risk_level\": \"LOW\",\n  \"insight\": \"Cool weather. Light jacket recommended. Mild wind present.\"\n}\n💀 KILLCRITIC RULES (IMPORTANT)\n❌ DO NOT:\nNo emojis\nNo markdown\nNo text formatting\nNo “🌍 Location”\nNo paragraphs\nNo arrays with \"output\": \"...text...\"\n✅ DO:\nPure JSON only\nMachine-readable structure\nDeterministic fields\nClean keys\nAlways include risk_level\nAlways include insight (dynamic rule-based)\n🧠 OPTIONAL UPGRADE (RECOMMENDED)\n\nIf you want AI-level systems, add this:\n\n\"risk_score\": 0.2,\n\"comfort_level\": \"comfortable\"\n🚀 KILLCRITIC SUMMARY\n\nYou now transformed your system into:\n\n❌ human chat weather generator\n✅ production-grade weather intelligence API response"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        176,
+        -48
+      ],
+      "id": "241e17d4-353a-4dc3-8833-c178479ceeec",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        64,
+        192
+      ],
+      "id": "ae4a5074-e5d8-4139-b43d-2d0a181e6dce",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "BcCUWYOODz8O91OX",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $now }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        192
+      ],
+      "id": "415d9843-a8b0-4e0b-96c9-294000001731",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "options": {
+          "prompt": "Instructions:\n--------------\n{instructions}\n--------------\n\nCompletion:\n--------------\n{completion}\n--------------\n\nAbove, the Completion did not satisfy the constraints given in the Instructions.\n\nError:\n--------------\n{error}\n--------------\n\nPlease try again. You must strictly correct the output.\n\nIMPORTANT RULES:\n- You MUST ONLY return a valid response that satisfies the Instructions\n- DO NOT add explanations\n- DO NOT change the required format\n- DO NOT include markdown or extra text\n\nYou MUST use the following placeholders exactly:\n- {error}\n- {instructions}\n- {completion}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        352,
+        160
+      ],
+      "id": "4af94f63-789b-4da5-9619-36d147e15808",
+      "name": "Auto-fixing Output Parser"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        352,
+        368
+      ],
+      "id": "44c0e086-32b9-4c96-996e-e6238d313cf0",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "BcCUWYOODz8O91OX",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"location\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"city\": { \"type\": \"string\" },\n        \"country\": { \"type\": \"string\" }\n      },\n      \"required\": [\"city\", \"country\"]\n    },\n\n    \"weather\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"main\": { \"type\": \"string\" },\n        \"description\": { \"type\": \"string\" }\n      },\n      \"required\": [\"main\", \"description\"]\n    },\n\n    \"temperature\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"current\": { \"type\": \"number\" },\n        \"feels_like\": { \"type\": \"number\" },\n        \"min\": { \"type\": \"number\" },\n        \"max\": { \"type\": \"number\" },\n        \"unit\": { \"type\": \"string\", \"enum\": [\"C\"] }\n      },\n      \"required\": [\"current\", \"feels_like\", \"min\", \"max\", \"unit\"]\n    },\n\n    \"wind\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"speed\": { \"type\": \"number\" },\n        \"direction_deg\": { \"type\": \"number\" }\n      },\n      \"required\": [\"speed\", \"direction_deg\"]\n    },\n\n    \"atmosphere\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"humidity\": { \"type\": \"number\" },\n        \"visibility\": { \"type\": \"number\" },\n        \"pressure\": { \"type\": \"number\" }\n      },\n      \"required\": [\"humidity\", \"visibility\", \"pressure\"]\n    },\n\n    \"clouds\": {\n      \"type\": \"number\"\n    },\n\n    \"risk_level\": {\n      \"type\": \"string\",\n      \"enum\": [\"LOW\", \"MODERATE\", \"HIGH\"]\n    },\n\n    \"insight\": {\n      \"type\": \"string\"\n    }\n  },\n\n  \"required\": [\n    \"location\",\n    \"weather\",\n    \"temperature\",\n    \"wind\",\n    \"atmosphere\",\n    \"clouds\",\n    \"risk_level\",\n    \"insight\"\n  ]\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        496,
+        368
+      ],
+      "id": "b3418796-711b-4ffc-8d4c-853b47635a8f",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        672,
+        528
+      ],
+      "id": "7906f4b2-1207-4224-bb54-49affab8bc87",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "BcCUWYOODz8O91OX",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "speech",
+        "voice": {
+          "__rl": true,
+          "value": "CwhRBWXzGAHq8TQ4Fs17",
+          "mode": "list",
+          "cachedResultName": "Roger - Laid-Back, Casual, Resonant"
+        },
+        "text": "={{ $json.output.insight }}",
+        "additionalOptions": {},
+        "requestOptions": {}
+      },
+      "type": "@elevenlabs/n8n-nodes-elevenlabs.elevenLabs",
+      "typeVersion": 1,
+      "position": [
+        528,
+        -48
+      ],
+      "id": "7db0a36d-d9ca-4ff2-b4ef-793a2a4cf7c5",
+      "name": "Convert text to speech",
+      "credentials": {
+        "elevenLabsApi": {
+          "id": "cZErCiUNloX8Ekk3",
+          "name": "ElevenLabs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": "Weather Resume",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "City"
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -672,
+        -48
+      ],
+      "id": "7109fdaf-7b25-40b6-a632-d0c4574554f3",
+      "name": "On form submission",
+      "webhookId": "c4b3df4d-7ba9-45f0-b10c-0622f084ee9b"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=city : {{ $json.City }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a Weather API preprocessing agent for OpenWeatherMap.\n\nYour job is to normalize user input before sending it to the OpenWeatherMap API.\n\nRULES:\n\n1. Always convert the city name to lowercase.\n   Example:\n   \"Algiers\" → \"algiers\"\n   \"NEW YORK\" → \"new york\"\n   \"Paris\" → \"paris\"\n\n2. Remove extra spaces before and after the city name.\n\n3. Replace multiple spaces with a single space.\n\n4. Do NOT translate city names.\n\n5. Do NOT add country unless explicitly provided by the user.\n\n6. Output ONLY a JSON object (no text, no explanation).\n\nOUTPUT FORMAT:\n\n{\n  \"city\": \"normalized_city_name\"\n}\n\nEXAMPLES:\n\nInput: \"Algiers\"\nOutput:\n{ \"city\": \"algiers\" }\n\nInput: \"  New   York  \"\nOutput:\n{ \"city\": \"new york\" }\n\nInput: \"Paris\"\nOutput:\n{ \"city\": \"paris\" }\n\nInput: \"London\"\nOutput:\n{ \"city\": \"london\" }\n\nCRITICAL:\n- Output must be valid JSON only\n- No markdown\n- No explanations\n- No extra fields"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -464,
+        -48
+      ],
+      "id": "331eec40-472e-4ef1-9c44-aa3f5c5d06ad",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -576,
+        176
+      ],
+      "id": "4f8156b8-d2b1-4a43-bc82-5d43cd5f8846",
+      "name": "Google Gemini Chat Model3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "BcCUWYOODz8O91OX",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $now }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -416,
+        176
+      ],
+      "id": "f1371405-c111-40a0-9c66-3dbf5188e5f2",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        400
+      ],
+      "id": "829e6eae-2e51-4f43-93bf-16f9ae9d17d9",
+      "name": "Auto-fixing Output Parser1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        656
+      ],
+      "id": "cd93ceb2-24d7-4a55-831a-3029f5425174",
+      "name": "Google Gemini Chat Model4",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "BcCUWYOODz8O91OX",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "={\n  \"city\":\"{{ $json.City }}\"\n} "
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -160,
+        656
+      ],
+      "id": "a91ec0a2-14bd-427f-98ea-7c424e75cece",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "cityName": "={{ $json.output.city }}",
+        "language": "en"
+      },
+      "type": "n8n-nodes-base.openWeatherMap",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        -48
+      ],
+      "id": "95ac9d21-8e0a-4174-b51b-402e40886695",
+      "name": "OpenWeatherMap",
+      "credentials": {
+        "openWeatherMapApi": {
+          "id": "DPYgWAqQXjoM5buS",
+          "name": "OpenWeatherMap account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "=data",
+        "name": "={{ $('AI Agent').item.json.output.location.city }}_{{ $('AI Agent').item.json.output.location.country }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "https://drive.google.com/drive/u/0/folders/1cDf3JnmkQIOT3dVZ_PjmtDvkVmeWObz5",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        736,
+        -48
+      ],
+      "id": "d5ea0cb6-699a-4cb8-abdd-824d3f2cca80",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "br3r7ovsAF5JQdAp",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('On form submission').item.json.Email }}",
+        "subject": "New Weather Information by Mido today",
+        "emailType": "text",
+        "message": "=date & time :  {{ $json.createdTime }}\n\nmp3 link : {{ $json.webViewLink }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        944,
+        -48
+      ],
+      "id": "b3452eb5-b8ae-4145-8e9e-4a99001b78ec",
+      "name": "Send a message",
+      "webhookId": "91b41f13-2c2f-4998-9ef5-e5089c678f9d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "PL6G1PAFn8OVoFVE",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Convert text to speech",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Auto-fixing Output Parser1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "OpenWeatherMap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenWeatherMap": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert text to speech": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "bf61ca22-c9a7-4f20-980e-4b70491cdc07",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ab951a9d520b1388c1f1880b938ef701c34226f247867899565fe9b0cfcca9e0"
+  },
+  "id": "lqGsudq0zC5A65cs",
+  "tags": []
+}
